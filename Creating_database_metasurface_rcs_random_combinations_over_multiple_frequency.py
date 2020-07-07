@@ -61,17 +61,20 @@ def fun(x,i):
 
 #dataframe = pd.read_excel('Length_Openingangle_V_Elements_Pattern_Design.xlsx')
 state_list = []  
+
+frequency_list = np.arange(6.0,14.1,0.5) 
 number_of_frequency_points = len(df_v1)
-number_of_combinations = 5
+
+number_of_combinations = 20
 x = np.zeros((number_of_combinations,200))  #Initialise numpy array x
-np.random.seed(30)
+
 
 rcs_over_frequency = {} #pd.DataFrame([])
 list_of_rcs_over_frequency = pd.DataFrame([])
-
+frac = 0.48#for binomial distribution
 
 for times in range(number_of_combinations):#(dataframe.shape[0]):# number of instances
-    state = pd.DataFrame(np.random.randint(2, size=(1,100)))
+    state = np.random.binomial(1, frac, size=100)
     for i in range(number_of_frequency_points):
         x[times][:N**2] = state #np.array((t,l)).ravel() 
         x[times][N**2:] = state
@@ -79,9 +82,18 @@ for times in range(number_of_combinations):#(dataframe.shape[0]):# number of ins
         list_of_rcs_over_frequency.loc['%d' %times ,'%d' %i] = fun(x[times],i)
     state_list.append(state)
         #print(result)
-pd.DataFrame(state_list).to_excel('random_combination_of_one_and_zero.xlsx', header = None, index = False)
-df1 = pd.DataFrame(state_list)
 
-list_of_rcs_over_frequency.to_excel("RCS_over_all_frequencies_for_random_combinations.xlsx") 
+df_state_list = pd.DataFrame(state_list)
+df_state_list.to_excel('random_combination_of_one_and_zero_%d_combinations.xlsx' %number_of_combinations, header = None, index = False)
+list_of_rcs_over_frequency.to_excel("RCS_over_all_frequencies_for_random_combinations_%d_combinations.xlsx" %number_of_combinations) 
 
-
+for k in range(list_of_rcs_over_frequency.shape[0]):
+    plt.figure()
+    plt.xlabel("Frequency GHz")
+    plt.ylabel("RCS in dB")
+    plt.title("RCS for %d combination of V1 and V2 from 6GHz to 14GHz \n" %k, loc = 'right')
+    plt.plot(df_v1["frequency"][0:number_of_frequency_points],list_of_rcs_over_frequency.loc['%d' %k,:], label = "%d combination" %k)
+    plt.legend(loc = "upper left")
+    plt.savefig("RCS over frequency for random combination_number_%d_%%d.png" %k %number_of_frequency_points)
+plt.show()
+plt.ion() # helps to come to next line in command window without cosing figures
