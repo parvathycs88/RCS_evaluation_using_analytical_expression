@@ -63,7 +63,7 @@ def fun(x,i):
 state_list = []  
 
 frequency_list = np.arange(6.0,14.1,0.5) 
-number_of_frequency_points = 10#len(df_v1)
+number_of_frequency_points = len(df_v1)
 
 number_of_combinations = 10
 x = np.zeros((number_of_combinations,200))  #Initialise numpy array x
@@ -71,7 +71,7 @@ x = np.zeros((number_of_combinations,200))  #Initialise numpy array x
 
 rcs_over_frequency = {} #pd.DataFrame([])
 list_of_rcs_over_frequency = pd.DataFrame([])
-frac_list = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.97]#for binomial distribution
+frac_list = [0.05,0.16,0.28,0.32,0.44,0.53,0.61,0.72,0.87,0.97]#for binomial distribution
 
 for times in range(number_of_combinations):#(dataframe.shape[0]):# number of instances
     state = np.random.binomial(1, frac_list[times], size=100)
@@ -82,7 +82,7 @@ for times in range(number_of_combinations):#(dataframe.shape[0]):# number of ins
         list_of_rcs_over_frequency.loc['%d' %times ,'%d' %i] = fun(x[times],i)
     state_list.append(state)
         #print(result)
-
+#omsriramajayam
 df_state_list = pd.DataFrame(state_list)
 df_state_list.to_excel('random_combination_of_one_and_zero_%d_combinations_different_fraction.xlsx' %number_of_combinations, header = None, index = False)
 list_of_rcs_over_frequency.to_excel("RCS_over_all_frequencies_for_random_combinations_%d_combinations_different_fraction.xlsx" %number_of_combinations) 
