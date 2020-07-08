@@ -94,6 +94,6 @@ for k in range(list_of_rcs_over_frequency.shape[0]):
     plt.title("RCS for %d combination of V1 and V2 from 6GHz to 14GHz \n" %k, loc = 'right')
     plt.plot(df_v1["frequency"][0:number_of_frequency_points],list_of_rcs_over_frequency.loc['%d' %k,:], label = "%d combination" %k)
     plt.legend(loc = "upper right")
-    plt.savefig("RCS over frequency for random combination_number_different_fraction_%d_%%d.png" %k %number_of_frequency_points)
+    plt.savefig("RCS_over_frequency_for_random_combination_number_different_fraction_%d_%%d.png" %k %number_of_frequency_points)
 plt.show()
 plt.ion() # helps to come to next line in command window without cosing figures
