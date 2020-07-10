@@ -19,7 +19,7 @@ phi_= np.arange(0,6.1959,0.087266).round(4)   #np.linspace(0,2*pi,360)
 theta_value = df_10_6["Theta_radians"]
 phi_value = df_10_6["Phi_radians"]
 
-theta,phi = np.meshgrid(theta_value,phi_value) #np.meshgrid(theta_,phi_) # Makind 2D grid
+theta,phi = np.meshgrid(theta_,phi_) #np.meshgrid(theta_,phi_) # Makind 2D grid
 
 
 df_v1 = pd.read_excel('ReflectionPhase_1_openingangle_10_length_6.xlsx') # dimensions of '0'th element V1
@@ -35,7 +35,7 @@ df_v2["reflectionphase_unwrapped"] = np.unwrap((np.deg2rad(df_v2["reflectionphas
 
 #omsriramajayam
 
-def fun(x,i):
+def fun(x,i,angle1,angle2):
     L_v = x[:N**2]
     theta_v = x[N**2:]
     phase_pred = []
@@ -53,6 +53,7 @@ def fun(x,i):
     S = 0
     S1 = []
     S2 = []
+    S3 = np.zeros((len(phi_),len(theta_)))
     #for angle1 in theta_value: 
         #for angle2 in phi_value: 
     for m in range(N):
@@ -69,36 +70,42 @@ def fun(x,i):
             #S2 = S2.extend(S1)
             #print(S2)
     #S = S1 #np.cos(theta) * S
-    S = df_10_6['Abs(E)'] * S
+    #S = np.cos(theta) * (df_10_6['Abs(E)'].values.reshape(72,37)) * S
+    S = df_10_6.loc[((df_10_6['Phi_radians'] == phi_[angle1]) & (df_10_6['Theta_radians'] == theta_[angle2])), 'Abs(E)'] * S[angle1,angle2]
     H = np.trapz(np.trapz(np.abs(S)**2*np.sin(theta),theta_),phi_) # integration using trapezoid function
     directivity = 4 * pi * np.abs(S)**2 / H
     rcs = (1/(4*pi*N**2)) * np.max(directivity)  
     result.append(10 * np.log10(rcs)) 
     print(result)
-    return result
+    return result,S
     
     
-rcs_over_frequency = {} #pd.DataFrame(columns = np.arange(5))# {} #
+rcs_over_frequency = {} 
 list_of_rcs_over_frequency = []
 list_for_many_combinations = pd.DataFrame([])
 
 dataframe = pd.read_excel('Length_Openingangle_V_Elements_Pattern_Design.xlsx', header = None)
 #x = np.zeros((99,200))  #Initialise numpy array x
 
-    #lambda0[i] = 3*10^8/(df["frequency"][i])
     #k[i] = 2*pi/lambda0[i]
     #D[i] = lambda0[i]#0.03#d=0.015 used for simulation by haoyang #lambda0/2
 x = np.zeros((100,200))  #Initialise numpy array x
 number_of_frequency_points = 10#len(df_v1)
 Combination_number = 3
-for times in range(Combination_number):#dataframe.shape[0]):  
-    for i in range(number_of_frequency_points):#len(df_v1)):  
-        x[times][:N**2] = dataframe.iloc[times,:N**2].to_numpy()#np.array((t,l)).ravel() 
-        x[times][N**2:] = dataframe.iloc[times,N**2:].to_numpy()   
-        print(type(fun(x[times],i)))
-        rcs_over_frequency['Combination_number_%d' %times] = fun(x[times],i)
-        list_of_rcs_over_frequency.extend(rcs_over_frequency['Combination_number_%d' %times])
+#rcs_over_frequency = np.zeros((Combination_number,len(phi_)))#pd.DataFrame([]) #{}
 
+for times in range(Combination_number):#dataframe.shape[0]):  
+    for i in range(number_of_frequency_points):#len(df_v1)): 
+        for angle1 in range(len(phi_)):
+            for angle2 in range(len(theta_)):
+                x[times][:N**2] = dataframe.iloc[times,:N**2].to_numpy()#np.array((t,l)).ravel() 
+                x[times][N**2:] = dataframe.iloc[times,N**2:].to_numpy()   
+        #print(type(fun(x[times],i)))
+                rcs_over_frequency['Combination_number_%d' %times][0:72] = fun(x[times],i,angle1,angle2)[0]
+                
+                list_of_rcs_over_frequency.extend(rcs_over_frequency['Combination_number_%d' %times])
+                S4 = fun(x[times],i,angle1,angle2)[1]
+                
 for j in range(Combination_number):
     list_for_many_combinations['Combination_number_%d' %j] = list_of_rcs_over_frequency[number_of_frequency_points*j:number_of_frequency_points*j+number_of_frequency_points]#[len(df_v1)*j:len(df_v1)*j+len(df_v1)]
 
