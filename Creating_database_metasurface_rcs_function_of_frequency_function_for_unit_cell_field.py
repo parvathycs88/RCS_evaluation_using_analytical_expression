@@ -113,8 +113,4 @@ for k in range(list_for_many_combinations.shape[1]):
     #plt.savefig("RCS over frequency considering unit field function for Combination_number_%d_%%d.png" %k %number_of_frequency_points)
 plt.show()
 plt.ion() # helps to come to next line in command window without cosing figures
-    
 
-
-
-   
