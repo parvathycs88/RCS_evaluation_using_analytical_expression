@@ -14,8 +14,8 @@ pi=np.pi
 df_10_6 = pd.read_excel('Efield_10degree_6mm.xlsx')
 df_85_10 = pd.read_excel('Efield_85degree_10mm.xlsx')
 
-theta_=  np.arange(0,pi,0.087266).round(4) # np.linspace(0,pi,10).round(4)# #theta_= np.linspace(0,pi/2,90)
-phi_=   np.arange(0,6.1959,0.087266).round(4)#np.linspace(0,6.1959,10).round(4)#   #phi_= np.linspace(0,2*pi,360)
+theta_=   np.linspace(0,pi,10).round(4) ## np.arange(0,pi,0.087266).round(4)  #theta_= np.linspace(0,pi/2,90)
+phi_=    np.linspace(0,6.1959,10).round(4) ## np.arange(0,6.1959,0.087266).round(4)   #phi_= np.linspace(0,2*pi,360)
 
 theta_value = df_10_6["Theta_radians"]
 phi_value = df_10_6["Phi_radians"]
@@ -36,7 +36,7 @@ df_v2["reflectionphase_unwrapped"] = np.unwrap((np.deg2rad(df_v2["reflectionphas
 
 #omsriramajayam
 global df_RCS
-df_RCS = pd.DataFrame([])
+df_RCS_1 = pd.DataFrame([])
 def fun(x,i, angle1,angle2):
     L_v = x[:N**2]
     theta_v = x[N**2:]
@@ -64,16 +64,18 @@ def fun(x,i, angle1,angle2):
         for n in range(N):
             S =  S  + np.exp(-1j * (reflection_phase[m,n] + k[i]*D[i]*np.sin(theta_[angle1])*((m-1/2)*np.cos(phi_[angle2])+((n-1/2)*np.sin(phi_[angle2])))))
                     
-            S = np.multiply(S,(df_10_6.loc[((df_10_6['Phi_radians'] == phi_[angle2]) & (df_10_6['Theta_radians'] == theta_[angle1])), 'Abs(E)']))   
+    S = np.multiply(S,(df_10_6.loc[((df_10_6['Phi_radians'] == phi_[angle2]) & (df_10_6['Theta_radians'] == theta_[angle1])), 'Abs(E)']))   
             #print(S[int(theta_[angle1]),int(phi_[angle2])].shape)
             #omsriramajayam 
-    H = np.abs(S)**2*np.sin(theta_[angle1]) # Single value no need of integration
+    H = np.abs(S)**2*np.sin(theta_[angle1])# Single value no need of integration
  #np.trapz(np.trapz(np.abs(S)**2*np.sin(theta_[angle1]),theta_),phi_) # integration using trapezoid function
     directivity = 4 * pi * np.abs(S)**2 / H
     rcs = (1/(4*pi*N**2)) * np.max(directivity)  
     
-    df_RCS =pd.DataFrame({'RCS_dB': [result],'theta': [theta_[angle1]], 'phi' : [phi_[angle2]], 'frequency' : [df_v1["frequency"][i]]})   
+    #df_RCS =pd.DataFrame({'RCS_dB': [result],'theta': [theta_[angle1]], 'phi' : [phi_[angle2]], 'frequency' : [df_v1["frequency"][i]]})   
+    
     result.append(10 * np.log10(rcs)) 
+    df_RCS =pd.DataFrame({'RCS_dB': [result],'theta': [theta_[angle1]], 'phi' : [phi_[angle2]], 'frequency' : [df_v1["frequency"][i]]}) 
     print(len(result))
     print(df_RCS)
     return df_RCS
@@ -90,7 +92,7 @@ dataframe = pd.read_excel('Length_Openingangle_V_Elements_Pattern_Design.xlsx', 
     #k[i] = 2*pi/lambda0[i]
     #D[i] = lambda0[i]#0.03#d=0.015 used for simulation by haoyang #lambda0/2
 x = np.zeros((100,200))  #Initialise numpy array x
-number_of_frequency_points = len(df_v1)
+number_of_frequency_points = 3#len(df_v1)
 Combination_number = 1
 #rcs_over_frequency = np.zeros((Combination_number,len(phi_)))#pd.DataFrame([]) #{}
 
@@ -104,8 +106,8 @@ for times in range(Combination_number):#dataframe.shape[0]):
                 x[times][:N**2] = dataframe.iloc[times,:N**2].to_numpy()#np.array((t,l)).ravel() 
                 x[times][N**2:] = dataframe.iloc[times,N**2:].to_numpy()   
         #print(type(fun(x[times],i)))     
-                df_RCS = df_RCS.append(fun(x[times],i,angle1,angle2))
-                df_RCS.to_excel('RCS_function_of_theta_phi_frequency.xlsx')
+                df_RCS_1 = df_RCS_1.append(fun(x[times],i,angle1,angle2))
+df_RCS_1.to_excel('RCS_function_of_theta_phi_frequency_%d.xlsx' %number_of_frequency_points)
                 #df_RCS.to_excel(writer, sheet_name = 'Combination_%d' %times)
 
 #writer.save()
