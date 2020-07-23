@@ -75,8 +75,8 @@ def fun(x,i, angle1,angle2):
     #df_RCS =pd.DataFrame({'RCS_dB': [result],'theta': [theta_[angle1]], 'phi' : [phi_[angle2]], 'frequency' : [df_v1["frequency"][i]]})   
     
     result.append(10 * np.log10(rcs)) 
-    df_RCS =pd.DataFrame({'RCS_dB': [result],'theta': [theta_[angle1]], 'phi' : [phi_[angle2]], 'frequency' : [df_v1["frequency"][i]]}) 
-    print(len(result))
+    df_RCS = pd.DataFrame({'RCS_dB': [result],'theta': [theta_[angle1]], 'phi' : [phi_[angle2]], 'frequency' : [df_v1["frequency"][i]]}) 
+    print(rcs)
     print(df_RCS)
     return df_RCS
   
