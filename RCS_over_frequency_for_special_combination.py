@@ -14,8 +14,12 @@ theta_= np.linspace(0,pi/2,90)
 phi_= np.linspace(0,2*pi,360)
 theta,phi = np.meshgrid(theta_,phi_) # Makind 2D grid
 
-df_v1 = pd.read_excel('ReflectionPhase_1_openingangle_10_length_6.xlsx') # dimensions of '0'th element V1
-df_v2 = pd.read_excel('ReflectionPhase_1_openingangle_85_length_10.xlsx') # dimensions of '0'th element V2
+#df_v1 = pd.read_excel('ReflectionPhase_1_openingangle_10_length_6.xlsx') # dimensions of '0'th element V1
+#df_v2 = pd.read_excel('ReflectionPhase_1_openingangle_85_length_10.xlsx') # dimensions of '0'th element V2
+
+df_v1 = pd.read_excel('Selected_frequency_ReflectionPhase_1_openingangle_10_length_6.xlsx') # dimensions of '0'th element V1
+df_v2 = pd.read_excel('Selected_frequency_ReflectionPhase_1_openingangle_85_length_10.xlsx') # dimensions of '0'th element V2
+
 lambda0 = pd.DataFrame([])
 lambda0 = 1/(df_v1["frequency"].div(3*10^8))
 k = 2*pi/lambda0
@@ -32,10 +36,10 @@ def fun(x,i):
     theta_v = x[N**2:]
     phase_pred = []
     for t,l in zip(theta_v,L_v):
-        if((t == 10) & (l == 6)):
-            phase_pred.append(df_v1["reflectionphase_unwrapped"][i]) # Havetoappend different reflection phase values according to frequency
-        if((t == 85) & (l == 10)):
-            phase_pred.append(df_v2["reflectionphase_unwrapped"][i])   
+        if((t == 0) & (l == 0)):
+            phase_pred.append(df_v1["reflectionphase_unwrapped"][i])
+        if((t == 1) & (l == 1)):
+            phase_pred.append(df_v2["reflectionphase_unwrapped"][i])  
     
     print(phase_pred)
         #omsriramajayam
@@ -50,46 +54,66 @@ def fun(x,i):
     S = np.cos(theta) * S
     H = np.trapz(np.trapz(np.abs(S)**2*np.sin(theta),theta_),phi_) # integration using trapezoid function
     directivity = 4 * pi * np.abs(S)**2 / H
-    rcs = (1/(4*pi*N**2)) * np.max(directivity)  
-    result.append(10 * np.log10(rcs)) 
-        #frequency.append(df["frequency"][i])
-    return result
+    rcs = 10 * np.log10((1/(4*pi*N**2)) * np.max(directivity)) 
+    return rcs
     
     
 rcs_over_frequency = {}#pd.DataFrame([])
-list_of_rcs_over_frequency = []
-list_for_many_combinations = pd.DataFrame([])
+#list_of_rcs_over_frequency = []
+#list_for_many_combinations = pd.DataFrame([])
 
-dataframe_length = pd.read_excel('Special_Combination_length.xlsx', header = None)#('Special_Combination_second_length.xlsx', header = None) 
-dataframe_openingangle = pd.read_excel('Special_Combination_openingangle.xlsx', header = None)
+#dataframe_length = pd.read_excel('Special_Combination_length.xlsx', header = None)#('Special_Combination_second_length.xlsx', header = None) 
+
+#dataframe_openingangle = pd.read_excel('Special_Combination_openingangle.xlsx', header = None)
 #pd.read_excel('Special_Combination_second_openingangle.xlsx', header = None) 
-x = np.zeros((1,200))  #Initialise numpy array x
 
+dataframe = pd.read_excel("random_combination_of_one_and_zero_10_combinations_different_fraction.xlsx")
+number_of_combinations = 10
+x = np.zeros((number_of_combinations,200))  #Initialise numpy array x
+
+list_of_rcs_over_frequency = pd.DataFrame([])
     #lambda0[i] = 3*10^8/(df["frequency"][i])
     #k[i] = 2*pi/lambda0[i]
     #D[i] = lambda0[i]#0.03#d=0.015 used for simulation by haoyang #lambda0/2
-x = np.zeros((1,200))  #Initialise numpy array x [1,1,1,1,1,0,0,0,0,0] * 10
+x = np.zeros((10,200))  #Initialise numpy array x [1,1,1,1,1,0,0,0,0,0] * 10
 number_of_frequency_points = len(df_v1)
-for times in range(1):#dataframe.shape[0]):  
+for times in range(dataframe.shape[0]):  
     for i in range(number_of_frequency_points):#len(df_v1)):  
-        x[times][:N**2] = dataframe_length.iloc[times,:N**2].to_numpy()#np.array((t,l)).ravel() 
-        x[times][N**2:] = dataframe_openingangle.iloc[times,:N**2].to_numpy()   
-        rcs_over_frequency['Combination_1111100000_%d' %times] = fun(x[times],i)
-        list_of_rcs_over_frequency.extend(rcs_over_frequency['Combination_1111100000_%d' %times])
+        x[times][:N**2] = dataframe.iloc[times,:N**2].to_numpy()#np.array((t,l)).ravel() 
+        x[times][N**2:] = dataframe.iloc[times,:N**2].to_numpy()   
+        #rcs_over_frequency['Combination_1111100000_%d' %times] = fun(x[times],i)
+        #list_of_rcs_over_frequency.extend(rcs_over_frequency['Combination_1111100000_%d' %times])
+        #rcs_over_frequency['Combination_number_%d_%%d' %times %i] = fun(x[times],i)
+        list_of_rcs_over_frequency.loc['%d' %times ,'%d' %i] = fun(x[times],i)
+
+list_of_rcs_over_frequency.to_excel("RCS_over_selected_frequencies_for_random_combinations_%d_combinations_different_fraction.xlsx" %number_of_combinations) 
+
+for k in range(list_of_rcs_over_frequency.shape[0]):
+    plt.figure()
+    plt.xlabel("Frequency GHz")
+    plt.ylabel("RCS reduction in dB")
+    plt.title("RCS reduction for %d combination of V1 and V2 from 6GHz to 14GHz \n" %k, loc = 'right')
+    plt.plot(df_v1["frequency"][0:number_of_frequency_points],list_of_rcs_over_frequency.loc['%d' %k,:], label = "%d combination" %k)
+    plt.legend(loc = "upper right")
+    plt.savefig("RCS_over_selected_frequency_for_random_combination_number_different_fraction_%d_%%d.png" %k %number_of_frequency_points)
+plt.show()
+plt.ion() 
+
+
     
-for j in range(1):
-    list_for_many_combinations['Combination_1111100000_%d' %j] = list_of_rcs_over_frequency[number_of_frequency_points*j:number_of_frequency_points*j+number_of_frequency_points]#[len(df_v1)*j:len(df_v1)*j+len(df_v1)]
+#for j in range(1):
+    #list_for_many_combinations['Combination_1111100000_%d' %j] = list_of_rcs_over_frequency[number_of_frequency_points*j:number_of_frequency_points*j+number_of_frequency_points]#[len(df_v1)*j:len(df_v1)*j+len(df_v1)]
 
 #list_for_many_combinations.to_excel("RCS_over_all_frequencies_for_combination_1111100000.xlsx") 
 
-for k in range(list_for_many_combinations.shape[1]):
-    plt.figure()
-    plt.xlabel("Frequency GHz")
-    plt.ylabel("RCS in dB")
-    plt.title("RCS for Combination_1111100000 of V1 and V2 from 6GHz to 14GHz \n", loc = 'right')
-    plt.plot(df_v1["frequency"][0:number_of_frequency_points],list_for_many_combinations['Combination_1111100000_%d' %k])
-    plt.savefig("RCS over frequency for Combination_1111100000_%d_%%d.png" %k %number_of_frequency_points)
-plt.show()
-plt.ion()
+#for k in range(list_for_many_combinations.shape[1]):
+    #plt.figure()
+    #plt.xlabel("Frequency GHz")
+    #plt.ylabel("RCS in dB")
+    #plt.title("RCS for Combination_1111100000 of V1 and V2 from 6GHz to 14GHz \n", loc = 'right')
+    #plt.plot(df_v1["frequency"][0:number_of_frequency_points],list_for_many_combinations['Combination_1111100000_%d' %k])
+    #plt.savefig("RCS over frequency for Combination_1111100000_%d_%%d.png" %k %number_of_frequency_points)
+#plt.show()
+#plt.ion()
 
    

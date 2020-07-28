@@ -86,7 +86,7 @@ for times in range(number_of_combinations):#(dataframe.shape[0]):# number of ins
 df_state_list = pd.DataFrame(state_list)
 df_state_list.to_excel('random_combination_of_one_and_zero_%d_combinations_different_fraction_list2.xlsx' %number_of_combinations, header = None, index = False)
 #df_state_list.to_excel('random_combination_of_one_and_zero_%d_combinations_different_fraction.xlsx' %number_of_combinations, header = None, index = False) #for first fraction list
-list_of_rcs_over_frequency.to_excel("RCS_over_selected_frequencies_for_random_combinations_%d_combinations_different_fraction.xlsx" %number_of_combinations) 
+list_of_rcs_over_frequency.to_excel("RCS_over_selected_frequencies_for_random_combinations_%d_combinations_different_fraction_list2.xlsx" %number_of_combinations) 
 
 for k in range(list_of_rcs_over_frequency.shape[0]):
     plt.figure()
