@@ -91,8 +91,8 @@ list_of_rcs_over_frequency.to_excel("RCS_over_selected_frequencies_for_random_co
 for k in range(list_of_rcs_over_frequency.shape[0]):
     plt.figure()
     plt.xlabel("Frequency GHz")
-    plt.ylabel("RCS in dB")
-    plt.title("RCS for %d combination of V1 and V2 from 6GHz to 14GHz \n" %k, loc = 'right')
+    plt.ylabel("RCS reduction in dB")
+    plt.title("RCS reduction for %d combination of V1 and V2 from 6GHz to 14GHz \n" %k, loc = 'right')
     plt.plot(df_v1["frequency"][0:number_of_frequency_points],list_of_rcs_over_frequency.loc['%d' %k,:], label = "%d combination" %k)
     plt.legend(loc = "upper right")
     plt.savefig("RCS_over_selected_frequency_for_random_combination_number_different_fraction_%d_%%d.png" %k %number_of_frequency_points)
