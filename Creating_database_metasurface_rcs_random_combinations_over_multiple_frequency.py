@@ -16,7 +16,7 @@ theta,phi = np.meshgrid(theta_,phi_) # Makind 2D grid
 df_v1 = pd.read_excel('Selected_frequency_ReflectionPhase_1_openingangle_10_length_6.xlsx') # dimensions of '0'th element V1
 df_v2 = pd.read_excel('Selected_frequency_ReflectionPhase_1_openingangle_85_length_10.xlsx') # dimensions of '0'th element V2
 lambda0 = pd.DataFrame([])
-lambda0 = 1/(df_v1["frequency"].div(3*10^8))
+lambda0 = (3*10^8)/(df_v1["frequency"])
 k = 2*pi/lambda0
 D = lambda0
 
