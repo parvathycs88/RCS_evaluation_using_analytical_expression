@@ -27,8 +27,8 @@ df1 = pd.DataFrame([])
 
 result = []
 
-df_v1["reflectionphase_unwrapped"] = np.unwrap(np.deg2rad(df_v1["reflectionphase"])) #np.unwrap((np.deg2rad(df_v1["reflectionphase"])) %2*np.pi) # modulo 2*pi helps to change range from -pi to +pi to 0 to 2*pi
-df_v2["reflectionphase_unwrapped"] = np.unwrap(np.deg2rad(df_v2["reflectionphase"])) #np.unwrap((np.deg2rad(df_v2["reflectionphase"])) % 2*np.pi)
+df_v1["reflectionphase_unwrapped"] = np.deg2rad(df_v1["reflectionphase"]) #np.unwrap((np.deg2rad(df_v1["reflectionphase"])) %2*np.pi) # modulo 2*pi helps to change range from -pi to +pi to 0 to 2*pi
+df_v2["reflectionphase_unwrapped"] = np.deg2rad(df_v2["reflectionphase"]) #np.unwrap((np.deg2rad(df_v2["reflectionphase"])) % 2*np.pi)
 
 def fun(x,i):
     #L_v = x[:N**2]
@@ -39,7 +39,8 @@ def fun(x,i):
             phase_pred.append(df_v1["reflectionphase_unwrapped"][i])
         else:
             phase_pred.append(df_v2["reflectionphase_unwrapped"][i])    
-    lambda0 = (3*10^8)/(df_v1["frequency"][i])
+    #df_v1["frequency"][i] = df_v1["frequency"][i].apply(lambda x:x*1.0*10^9)
+    lambda0 = (3*10^-1)/(df_v1["frequency"][i]) # 3*10^8/10^9 for  GHz
     #D = lambda0
     k = 2*pi/lambda0
     #for t,l in zip(theta_v,L_v):
@@ -64,7 +65,7 @@ def fun(x,i):
     directivity = (4 * pi * np.abs(S)**2) / (H)
     rcs = (lambda0**2 * np.max(directivity))/(4*pi*(N**2)*(D**2))
     rcs_dB = 10 * np.log10(rcs) 
-    return rcs
+    return rcs_dB
 #omsriramajayam
 
 #dataframe = pd.read_excel('Length_Openingangle_V_Elements_Pattern_Design.xlsx')
@@ -84,6 +85,7 @@ frac_list_3 = [1.00]
 for times in range(number_of_combinations):#(dataframe.shape[0]):# number of instances
     state = np.random.binomial(1, frac_list_3[times], size=100)
     #state = np.append([np.zeros(50)],[np.ones(50)])  
+    #state = [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]
     for i in range(number_of_frequency_points):
         x[times] = state #np.array((t,l)).ravel() 
         #x[times][N**2:] = state
@@ -94,16 +96,16 @@ for times in range(number_of_combinations):#(dataframe.shape[0]):# number of ins
         #print(result)
 #omsriramajayam
 df_state_list = pd.DataFrame(state_list)
-df_state_list.to_excel('random_combination_of_one_and_zero_%d_combinations_different_fraction_list3_all_v2.xlsx' %number_of_combinations, header = None, index = False)
+df_state_list.to_excel('random_combination_of_one_and_zero_%d_combinations_all_ones.xlsx' %number_of_combinations, header = None, index = False)
 #df_state_list.to_excel('random_combination_of_one_and_zero_%d_combinations_different_fraction.xlsx' %number_of_combinations, header = None, index = False) #for first fraction list
-list_of_rcs_over_frequency.to_excel("RCS_over_selected_frequencies_for_random_combinations_%d_combinations_all_v2.xlsx" %number_of_combinations) 
+list_of_rcs_over_frequency.to_excel("RCS_over_selected_frequencies_for_random_combinations_%d_combinations_all_ones.xlsx" %number_of_combinations) 
 
 for k in range(list_of_rcs_over_frequency.shape[0]):
     plt.figure()
     plt.xlabel("Frequency GHz")
     plt.ylabel("RCS reduction in dB")
     #plt.title("RCS reduction for %d combination of V1 and V2 from 6GHz to 14GHz \n" %k, loc = 'right')
-    plt.title("RCS reduction for all v2 from 6GHz to 14GHz", loc = 'right')
+    plt.title("RCS reduction for all ones from 6GHz to 14GHz", loc = 'right')
     plt.plot(df_v1["frequency"][0:number_of_frequency_points],list_of_rcs_over_frequency.loc['%d' %k,:], label = "All v2")#"%d combination" %k)
     plt.legend(loc = "upper right")
     #plt.savefig("RCS_over_selected_frequency_for_random_combination_number_different_fraction_%d_%%d.png" %k %number_of_frequency_points)
